@@ -1,0 +1,288 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-dmsans), system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), Georgia, serif;
+  --color-forest: #1e3a2a;
+  --color-forest-deep: #152b1f;
+  --color-cream: #f4eedf;
+  --color-wood: #8a6a46;
+  --color-gold: #c9a45c;
+}
+
+/* ───────── Site tema değişkenleri (ziyaretçi sitesi; değerler panelden gelir) ───────── */
+.site {
+  --text: #1b261e;
+  --muted: #4a5547;
+  --surface-rgb: 251 248 240;
+  --edge: rgb(255 255 255 / 0.55);
+  --edge-dark: rgb(30 58 42 / 0.12);
+  --gold: #a9853f;
+  color: var(--text);
+  font-family: var(--font-dmsans), system-ui, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  min-height: 100svh;
+  position: relative;
+  isolation: isolate;
+}
+.site[data-mode="dark"] {
+  --text: #f3eee2;
+  --muted: #cdd2c3;
+  --surface-rgb: 18 36 27;
+  --edge: rgb(255 255 255 / 0.14);
+  --edge-dark: rgb(0 0 0 / 0.3);
+  --gold: #d9b26a;
+}
+
+.heading {
+  font-family: var(--heading-font, var(--font-cormorant)), Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+/* Arka plan katmanı: düz renk / desen / duvar kâğıdı / özel görsel + karartma */
+.site-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--bg);
+  background-image: var(--bg-image, none);
+  background-size: cover;
+  background-position: center;
+}
+.site-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  opacity: 0;
+  -webkit-mask-image: var(--pattern, none);
+  mask-image: var(--pattern, none);
+  -webkit-mask-size: 160px 160px;
+  mask-size: 160px 160px;
+}
+.site-bg[data-kind="pattern"]::before {
+  opacity: 0.13;
+}
+.site-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgb(8 16 11 / var(--overlay, 0));
+}
+
+/* ───────── Acrylic yüzey ───────── */
+.acrylic {
+  background: rgb(var(--surface-rgb) / var(--card-alpha, 0.72));
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid var(--edge);
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 0.25) inset,
+    0 10px 30px -12px rgb(10 25 16 / 0.35),
+    0 2px 6px -2px rgb(10 25 16 / 0.18);
+}
+/* Fotoğrafın üzerindeki yüzeylerde okunurluk için daha yüksek minimum opaklık */
+.acrylic-strong {
+  background: rgb(var(--surface-rgb) / max(var(--card-alpha, 0.72), 0.82));
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .acrylic,
+  .acrylic-strong {
+    background: rgb(var(--surface-rgb) / 0.97);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .acrylic,
+  .acrylic-strong {
+    background: rgb(var(--surface-rgb) / 0.97);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* ───────── Düğmeler ───────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  padding: 0.65rem 1.1rem;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: transform 0.12s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 6px 16px -8px rgb(0 0 0 / 0.5);
+}
+.btn-primary:hover {
+  filter: brightness(1.06);
+}
+.btn-ghost {
+  background: rgb(var(--surface-rgb) / 0.6);
+  color: var(--text);
+  border: 1px solid var(--edge-dark);
+}
+.btn-ghost:hover {
+  background: rgb(var(--surface-rgb) / 0.85);
+}
+
+/* Görünür odak durumu (klavye) */
+.site :focus-visible,
+.admin :focus-visible {
+  outline: 3px solid var(--focus, #c9a45c);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+.site {
+  --focus: var(--accent);
+}
+.site[data-mode="dark"] {
+  --focus: #f0c674;
+}
+
+/* Kapak slaytı: yavaş yakınlaşma (Ken Burns) ve yazı geçişi */
+@keyframes kenburns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.12);
+  }
+}
+.kenburns {
+  animation-name: kenburns;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+@keyframes caption-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.slide-caption {
+  animation: caption-in 0.7s ease-out 0.3s both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kenburns,
+  .slide-caption {
+    animation: none;
+  }
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .btn {
+    transition: none;
+  }
+}
+
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: -4rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  background: #fff;
+  color: #111;
+  font-weight: 600;
+}
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+/* ───────── Yönetim paneli ───────── */
+.admin {
+  --focus: #2f6a45;
+  font-family: var(--font-dmsans), system-ui, sans-serif;
+  color: #1b261e;
+  background: #f1eee6;
+  min-height: 100svh;
+}
+.admin input[type="text"],
+.admin input[type="url"],
+.admin input[type="email"],
+.admin input[type="password"],
+.admin input[type="tel"],
+.admin input[type="number"],
+.admin textarea,
+.admin select {
+  width: 100%;
+  border: 1px solid #cfc8b6;
+  background: #fffdf8;
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  font-size: 16px; /* iOS yakınlaştırmasını önler */
+  min-height: 44px;
+}
+.admin [aria-invalid="true"] {
+  border-color: #b3261e;
+  background: #fff6f5;
+}
+.admin label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.admin .abtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: 0.5rem 0.95rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid #cfc8b6;
+  background: #fffdf8;
+  color: #1b261e;
+  cursor: pointer;
+}
+.admin .abtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.admin .abtn-primary {
+  background: #1e3a2a;
+  border-color: #1e3a2a;
+  color: #fff;
+}
+.admin .abtn-gold {
+  background: #b8893b;
+  border-color: #b8893b;
+  color: #1b1408;
+}
+.admin .abtn-danger {
+  color: #9b1c15;
+  border-color: #e3b7b3;
+}
